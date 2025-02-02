@@ -49,4 +49,35 @@ class UserDAL:
 
         async def creae_user(
                 self, name:str, surname:str, email:str
-        )
+        ) -> User:
+            new_user = User (
+                name=name,
+                surname=surname,
+                email=email,
+            )
+            self.db_session.add(new_user)
+            await self.db_session.flush()
+            return new_user 
+
+########################        
+# BLOG WITH API MODELS #
+########################
+
+LETTER_MATCH_PATTERN =re.compile(r"^[а-яА-Яа-zA-Z\-]+$")
+
+class TunedModel(BaseModel):
+    class Config:
+        """talls pydantic to convert to even non dict obj to json"""
+        orm_mode = True
+
+class UserCreate(BaseModel):
+    name = str
+    surname = str
+    email = EmailStr
+
+    @validator("name")
+    def validate_name(cls, value):
+        if not LETTER_MATCH_PATTERN.match(value):
+            raise HTTPException(
+                status_code=422, detail="Name should contains only letters"
+            )
