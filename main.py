@@ -22,3 +22,31 @@ engine = create_async_engine(settings.REAL_DATABASE_URL, future=True, echo=True)
 ##################################################
 
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+
+#######################
+# BLOCK WITH DATABASE #
+#######################
+
+Base = declarative_base()
+
+class User(base):
+    __tablename__ = "users"
+
+    user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String, nullable=False)
+    surfase = Column(String,nullable=False)
+    email = Column(String, nullable=False, unique=True)
+    is_active = Column(Boolean(), default=True)
+
+###########################################################
+# BLOCK FOR INTERACTION WITH DATABASE IN BUSINESS CONTEXT #
+###########################################################
+
+class UserDAL:
+    """Data Access Layer for operating user info"""
+    def __init__(self, db_session: AsyncSession):
+        self.db_session = db_session
+
+        async def creae_user(
+                self, name:str, surname:str, email:str
+        )
